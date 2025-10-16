@@ -29,7 +29,7 @@ const PracticePage = () => {
         .from("programming_languages")
         .select("*")
         .order("name");
-      
+
       if (langData) setLanguages(langData);
 
       // Fetch problems
@@ -96,7 +96,7 @@ const PracticePage = () => {
             <Filter className="h-5 w-5 text-muted-foreground" />
             <h3 className="font-bold">Filter Problems</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Language</label>
@@ -140,27 +140,53 @@ const PracticePage = () => {
                   <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                     <span className="text-white font-bold">{index + 1}</span>
                   </div>
-                  <div className="flex-1 space-y-3">
+
+                  <div className="flex-1 space-y-3 w-full max-w-full overflow-hidden">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="font-bold text-lg">{problem.title}</h3>
-                      <Badge className={getDifficultyColor(problem.difficulty_level)}>
-                        {problem.difficulty_level}
-                      </Badge>
+                      <h3 className="font-bold text-lg break-words">Hello World</h3>
+                      <div
+                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-primary/80 bg-code-green/20 text-code-green border-code-green/50"
+                      >
+                        easy
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{problem.description}</p>
-                    {problem.starter_code && (
-                      <div className="bg-muted/50 rounded-lg p-3 mt-2">
-                        <p className="text-xs text-muted-foreground mb-2">Starter Code:</p>
-                        <pre className="text-xs overflow-x-auto">
-                          <code>{problem.starter_code.slice(0, 150)}...</code>
+
+                    <p className="text-sm text-muted-foreground break-words">
+                      Write a program that prints "Hello, World!" to the console.
+                    </p>
+
+                    <div className="bg-muted/50 rounded-lg p-3 mt-2 w-full overflow-hidden">
+                      <p className="text-xs text-muted-foreground mb-2">Starter Code:</p>
+                      <div className="w-full overflow-x-auto">
+                        <pre className="text-xs whitespace-pre-wrap break-words">
+                          <code>def hello_world():
+                            # Your code here
+                            pass...</code>
                         </pre>
                       </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm text-primary pt-2">
-                      <Code2 className="h-4 w-4" />
-                      <span>Start Solving</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm text-primary pt-2 flex-wrap">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        className="lucide lucide-code-xml h-4 w-4"
+                      >
+                        <path d="m18 16 4-4-4-4"></path>
+                        <path d="m6 8-4 4 4 4"></path>
+                        <path d="m14.5 4-5 16"></path>
+                      </svg>
+                      <span className="truncate">Start Solving</span>
                     </div>
                   </div>
+
                 </div>
               </Card>
             ))
