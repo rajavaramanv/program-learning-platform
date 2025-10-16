@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      lessons: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          order_index: number
+          title: string
+          topic_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          order_index: number
+          title: string
+          topic_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          order_index?: number
+          title?: string
+          topic_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practice_problems: {
         Row: {
           created_at: string | null
@@ -187,6 +222,41 @@ export type Database = {
             columns: ["language_id"]
             isOneToOne: false
             referencedRelation: "programming_languages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_lesson_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          lesson_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
