@@ -58,26 +58,26 @@ const Dashboard = () => {
           {languages.map((language, index) => (
             <Card
               key={language.id}
-              className={`p-6 card-glow cursor-pointer group hover:border-primary transition-all duration-300`}
+              className={`p-6 card-glow cursor-pointer group hover:border-primary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-fade-in`}
               style={{ animationDelay: `${index * 100}ms` }}
               onClick={() => navigate(`/learn/${language.id}`)}
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-4xl">{language.icon}</span>
-                  <div className={`p-2 rounded-lg bg-gradient-to-br ${language.color} opacity-20 group-hover:opacity-30 transition-opacity`}>
-                    <Code2 className="h-5 w-5" />
+                  <span className="text-5xl group-hover:scale-110 transition-transform">{language.icon}</span>
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${language.color} opacity-20 group-hover:opacity-40 transition-all group-hover:rotate-6`}>
+                    <Code2 className="h-6 w-6 text-white" />
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-xl font-bold mb-2">{language.name}</h3>
-                  <p className="text-sm text-muted-foreground">{language.description}</p>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{language.name}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{language.description}</p>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-primary">
+                <div className="flex items-center gap-2 text-sm text-primary font-medium">
                   <BookOpen className="h-4 w-4" />
-                  <span>Start Learning</span>
+                  <span>Start Learning →</span>
                 </div>
               </div>
             </Card>

@@ -3,31 +3,52 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code2, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Code2, Zap, Filter } from "lucide-react";
 
 interface Problem {
   id: string;
   title: string;
   description: string;
   difficulty_level: string;
+  language_id: string;
+  starter_code: string | null;
 }
 
 const PracticePage = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [languages, setLanguages] = useState<any[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
 
   useEffect(() => {
-    const fetchProblems = async () => {
-      const { data } = await supabase
-        .from("practice_problems")
+    const fetchData = async () => {
+      // Fetch languages
+      const { data: langData } = await supabase
+        .from("programming_languages")
         .select("*")
-        .order("difficulty_level")
-        .limit(10);
+        .order("name");
+      
+      if (langData) setLanguages(langData);
 
+      // Fetch problems
+      let query = supabase.from("practice_problems").select("*");
+
+      if (selectedLanguage !== "all") {
+        query = query.eq("language_id", selectedLanguage);
+      }
+
+      if (selectedDifficulty !== "all") {
+        query = query.eq("difficulty_level", selectedDifficulty);
+      }
+
+      const { data } = await query.order("difficulty_level");
       if (data) setProblems(data);
     };
 
-    fetchProblems();
-  }, []);
+    fetchData();
+  }, [selectedLanguage, selectedDifficulty]);
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
@@ -42,50 +63,103 @@ const PracticePage = () => {
     }
   };
 
+  const filteredProblems = problems.filter(problem => {
+    const matchesLanguage = selectedLanguage === "all" || problem.language_id === selectedLanguage;
+    const matchesDifficulty = selectedDifficulty === "all" || problem.difficulty_level === selectedDifficulty;
+    return matchesLanguage && matchesDifficulty;
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
         <div>
           <h1 className="text-4xl font-bold text-gradient mb-2">Practice Problems</h1>
-          <p className="text-muted-foreground">Sharpen your coding skills</p>
+          <p className="text-muted-foreground">Sharpen your coding skills with hands-on challenges</p>
         </div>
 
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-secondary rounded-xl">
+            <div className="p-3 bg-gradient-primary rounded-xl">
               <Zap className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <h3 className="font-bold text-lg mb-1">Coming Soon!</h3>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg mb-1">Practice Makes Perfect</h3>
               <p className="text-sm text-muted-foreground">
-                Interactive code editor and problem solving platform
+                {problems.length} coding challenges across multiple languages
               </p>
             </div>
           </div>
         </Card>
 
+        <Card className="p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Filter className="h-5 w-5 text-muted-foreground" />
+            <h3 className="font-bold">Filter Problems</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Language</label>
+              <Tabs value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                <TabsList className="w-full flex-wrap h-auto">
+                  <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
+                  {languages.map(lang => (
+                    <TabsTrigger key={lang.id} value={lang.id} className="flex-1">
+                      {lang.icon} {lang.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Difficulty</label>
+              <Tabs value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
+                  <TabsTrigger value="easy" className="flex-1">Easy</TabsTrigger>
+                  <TabsTrigger value="medium" className="flex-1">Medium</TabsTrigger>
+                  <TabsTrigger value="hard" className="flex-1">Hard</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
+        </Card>
+
         <div className="space-y-4">
-          {problems.length === 0 ? (
+          {filteredProblems.length === 0 ? (
             <Card className="p-12 text-center">
               <Code2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-bold mb-2">No problems available</h3>
-              <p className="text-muted-foreground">Check back later for practice problems</p>
+              <h3 className="text-xl font-bold mb-2">No problems match your filters</h3>
+              <p className="text-muted-foreground">Try adjusting your filter settings</p>
             </Card>
           ) : (
-            problems.map((problem, index) => (
-              <Card key={problem.id} className="p-6 card-glow hover:border-primary cursor-pointer">
+            filteredProblems.map((problem, index) => (
+              <Card key={problem.id} className="p-6 card-glow hover:border-primary transition-all duration-300 cursor-pointer group">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                     <span className="text-white font-bold">{index + 1}</span>
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-3">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="font-bold text-lg">{problem.title}</h3>
                       <Badge className={getDifficultyColor(problem.difficulty_level)}>
                         {problem.difficulty_level}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{problem.description}</p>
+                    {problem.starter_code && (
+                      <div className="bg-muted/50 rounded-lg p-3 mt-2">
+                        <p className="text-xs text-muted-foreground mb-2">Starter Code:</p>
+                        <pre className="text-xs overflow-x-auto">
+                          <code>{problem.starter_code.slice(0, 150)}...</code>
+                        </pre>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-sm text-primary pt-2">
+                      <Code2 className="h-4 w-4" />
+                      <span>Start Solving</span>
+                    </div>
                   </div>
                 </div>
               </Card>

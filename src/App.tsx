@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
+import Learn from "./pages/Learn";
+import Topic from "./pages/Topic";
 import Progress from "./pages/Progress";
 import Notes from "./pages/Notes";
 import Practice from "./pages/Practice";
@@ -26,11 +28,12 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/learn/:languageId" element={<Learn />} />
+          <Route path="/topic/:topicId" element={<Topic />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/account" element={<Account />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
