@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
+import { z } from "zod";
+
+const phoneSchema = z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number");
 
 const Onboarding = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -27,9 +30,37 @@ const Onboarding = () => {
     });
   }, [navigate]);
 
+  const validatePhone = (phone: string) => {
+    if (!phone) return true; // Phone is optional
+    try {
+      phoneSchema.parse(phone);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    if (mobileNumber && !validatePhone(mobileNumber)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid 10-digit Indian mobile number starting with 6-9",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (age && (parseInt(age) < 10 || parseInt(age) > 120)) {
+      toast({
+        title: "Invalid Age",
+        description: "Please enter a valid age between 10 and 120",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
 
@@ -96,14 +127,18 @@ const Onboarding = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="mobile">Mobile Number</Label>
+              <Label htmlFor="mobile">Indian Mobile Number (Optional)</Label>
               <Input
                 id="mobile"
                 type="tel"
-                placeholder="+1 (555) 000-0000"
+                placeholder="9876543210"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
+                maxLength={10}
               />
+              <p className="text-xs text-muted-foreground">
+                Enter 10-digit mobile number without country code
+              </p>
             </div>
 
             <Button

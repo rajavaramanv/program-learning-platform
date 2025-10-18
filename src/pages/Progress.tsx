@@ -21,7 +21,6 @@ const ProgressPage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // This is a simplified version - you'd need to join tables properly
       const { data: languages } = await supabase
         .from("programming_languages")
         .select("*");
@@ -29,26 +28,40 @@ const ProgressPage = () => {
       if (languages) {
         const progressData: LanguageProgress[] = await Promise.all(
           languages.map(async (lang) => {
+            // Get total topics for this language
             const { count: totalTopics } = await supabase
               .from("topics")
               .select("*", { count: "exact", head: true })
               .eq("language_id", lang.id);
 
-            const { count: completedTopics } = await supabase
-              .from("user_progress")
-              .select("*", { count: "exact", head: true })
-              .eq("user_id", user.id)
-              .eq("completed", true);
+            // Get topic IDs for this language
+            const { data: topicIds } = await supabase
+              .from("topics")
+              .select("id")
+              .eq("language_id", lang.id);
+
+            let completedCount = 0;
+            if (topicIds && topicIds.length > 0) {
+              // Get completed topics for this specific language
+              const { count: completedTopics } = await supabase
+                .from("user_progress")
+                .select("*", { count: "exact", head: true })
+                .eq("user_id", user.id)
+                .eq("completed", true)
+                .in("topic_id", topicIds.map(t => t.id));
+              
+              completedCount = completedTopics || 0;
+            }
 
             const progress =
               totalTopics && totalTopics > 0
-                ? Math.round((completedTopics || 0 / totalTopics) * 100)
+                ? Math.round((completedCount / totalTopics) * 100)
                 : 0;
 
             return {
               language: lang.name,
               totalTopics: totalTopics || 0,
-              completedTopics: completedTopics || 0,
+              completedTopics: completedCount,
               progress,
             };
           })

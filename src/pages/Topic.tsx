@@ -118,7 +118,25 @@ const TopicPage = () => {
       description: `You scored ${score}/${quizzes.length}`,
     });
 
-    navigate(`/learn/${topic.language_id}`);
+    // Find next topic
+    const { data: allTopics } = await supabase
+      .from("topics")
+      .select("id, order_index")
+      .eq("language_id", topic.language_id)
+      .order("order_index");
+
+    if (allTopics) {
+      const currentIndex = allTopics.findIndex(t => t.id === topicId);
+      if (currentIndex !== -1 && currentIndex < allTopics.length - 1) {
+        // Go to next topic
+        navigate(`/topic/${allTopics[currentIndex + 1].id}`);
+      } else {
+        // All topics completed, go back to course
+        navigate(`/learn/${topic.language_id}`);
+      }
+    } else {
+      navigate(`/learn/${topic.language_id}`);
+    }
   };
 
   const getDifficultyColor = (level: string) => {
@@ -230,7 +248,7 @@ const TopicPage = () => {
                     </Button>
                   ) : (
                     <Button onClick={handleNextQuestion} className="flex-1">
-                      {currentQuizIndex < quizzes.length - 1 ? "Next Question" : "Complete Topic"}
+                      {currentQuizIndex < quizzes.length - 1 ? "Next Question" : "Complete & Go to Next Topic"}
                     </Button>
                   )}
                 </div>

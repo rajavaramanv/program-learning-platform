@@ -7,17 +7,59 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Code2 } from "lucide-react";
+import { z } from "zod";
+
+const emailSchema = z.string().email("Please enter a valid email address");
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateEmail = (email: string) => {
+    try {
+      emailSchema.parse(email);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isLogin && password !== confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isLogin && name.trim().length < 2) {
+      toast({
+        title: "Invalid Name",
+        description: "Please enter your full name",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -40,6 +82,9 @@ const Auth = () => {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/onboarding`,
+            data: {
+              name: name,
+            }
           },
         });
         
@@ -76,10 +121,35 @@ const Auth = () => {
         </div>
 
         <Card className="p-8 card-glow">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-center">
+              {isLogin ? "Welcome Back!" : "Create Your Account"}
+            </h2>
+            <p className="text-center text-muted-foreground mt-2">
+              {isLogin 
+                ? "Sign in to continue your learning journey" 
+                : "Join thousands of learners mastering programming"}
+            </p>
+          </div>
+
           <form onSubmit={handleAuth} className="space-y-6">
             <div className="space-y-4">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email Address *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -91,7 +161,7 @@ const Auth = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{isLogin ? "Password" : "Password *"}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -101,7 +171,27 @@ const Auth = () => {
                   required
                   minLength={6}
                 />
+                {!isLogin && (
+                  <p className="text-xs text-muted-foreground">
+                    Minimum 6 characters
+                  </p>
+                )}
               </div>
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+              )}
             </div>
 
             <Button
@@ -109,13 +199,17 @@ const Auth = () => {
               className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
               disabled={loading}
             >
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+              {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
 
             <div className="text-center text-sm">
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setName("");
+                  setConfirmPassword("");
+                }}
                 className="text-primary hover:text-primary-glow transition-colors"
               >
                 {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
