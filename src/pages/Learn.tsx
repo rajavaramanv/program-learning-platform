@@ -158,7 +158,7 @@ const Learn = () => {
                     </p>
                     <div className="flex items-center gap-2 text-sm text-primary">
                       <BookOpen className="h-4 w-4" />
-                      <span>{isLocked ? "Complete previous topic to unlock" : "Start Learning"}</span>
+                      <span>{isLocked ? "Complete previous topic to unlock" : isCompleted ? "Review Topic" : "Start Learning"}</span>
                     </div>
                   </div>
                 </div>

@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Learn from "./pages/Learn";
+import Lesson from "./pages/Lesson";
 import Topic from "./pages/Topic";
 import Progress from "./pages/Progress";
 import Notes from "./pages/Notes";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/learn/:languageId" element={<Learn />} />
+          <Route path="/lesson/:lessonId" element={<Lesson />} />
           <Route path="/topic/:topicId" element={<Topic />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/notes" element={<Notes />} />

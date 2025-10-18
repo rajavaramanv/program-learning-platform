@@ -40,6 +40,33 @@ const TopicPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Check if user has completed all lessons in this topic
+      const { data: lessonsData } = await supabase
+        .from("lessons")
+        .select("id")
+        .eq("topic_id", topicId)
+        .order("order_index");
+
+      if (lessonsData && lessonsData.length > 0) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: progressData } = await supabase
+            .from("user_lesson_progress")
+            .select("lesson_id")
+            .eq("user_id", user.id)
+            .eq("completed", true);
+
+          const completedLessonIds = new Set(progressData?.map(p => p.lesson_id) || []);
+          const allLessonsCompleted = lessonsData.every(lesson => completedLessonIds.has(lesson.id));
+
+          if (!allLessonsCompleted) {
+            // Redirect to first lesson
+            navigate(`/lesson/${lessonsData[0].id}`);
+            return;
+          }
+        }
+      }
+
       // Fetch topic
       const { data: topicData } = await supabase
         .from("topics")
@@ -67,7 +94,7 @@ const TopicPage = () => {
     };
 
     fetchData();
-  }, [topicId]);
+  }, [topicId, navigate]);
 
   const handleSubmitAnswer = () => {
     if (!selectedAnswer) return;
